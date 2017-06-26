@@ -5,6 +5,8 @@
         <img class="particle delay c" src="../../assets/particles/particle2.svg" alt="">
         <img class="particle delay d" src="../../assets/particles/particle4.svg" alt="">
         <img class="particle delay e" src="../../assets/particles/particle5.svg" alt="">
+        <img class="particle delay f" src="../../assets/particles/particle6.svg" alt="">
+        <img class="particle delay g" src="../../assets/particles/particle7.svg" alt="">
     </div>
 </template>
 <script>
@@ -53,6 +55,14 @@
 	top: 133px;
 	left: 298px;
 }
+.particle.f {
+	bottom: 209px;
+	left: 129px;
+}
+.particle.g {
+	bottom: 289px;
+	left: 334px;
+}
 .delay.a {
 	animation-delay: 0.2s;
 }
@@ -67,5 +77,11 @@
 }
 .delay.e {
 	animation-delay: 0.6s;
+}
+.delay.f {
+	animation-delay: 0.7s;
+}
+.delay.g {
+	animation-delay: 0.8s;
 }
 </style>

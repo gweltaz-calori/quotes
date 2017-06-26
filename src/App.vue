@@ -25,14 +25,28 @@ import './css/raleway.css'
             resizeBody() {
                 this.bodyDimensions.width = (document.body.clientWidth || document.documentElement.offsetWidth || window.innerWidth)+'px';
                 this.bodyDimensions.height = (document.body.clientHeight || document.documentElement.offsetHeight || window.innerHeight)+'px';
+            },
+            toggleFullScreen() {
+
+                let doc = window.document;
+                let docEl = doc.documentElement;
+
+                let requestFullScreen = docEl.requestFullscreen || docEl.mozRequestFullScreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            
+                if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
+                    requestFullScreen.call(docEl);
+                }
             }
         },
         mounted: function () {
             window.addEventListener('resize', this.resizeBody)
+            window.addEventListener('click',this.toggleFullScreen)
             this.resizeBody();
+            
         },
         beforeDestroy: function () {
             window.removeEventListener('resize', this.resizeBody)
+            window.removeEventListener('click',this.toggleFullScreen)
         }
     }
 </script>
@@ -41,6 +55,15 @@ import './css/raleway.css'
 * {
     -webkit-tap-highlight-color: transparent;
     user-select:none;
+    box-sizing: border-box;
+}
+span {
+    font-family: "Raleway";
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 html,body {
     width: 100%;
