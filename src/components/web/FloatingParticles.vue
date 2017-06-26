@@ -56,12 +56,12 @@
 	left: 298px;
 }
 .particle.f {
-	bottom: 209px;
+	bottom: 126px;
 	left: 129px;
 }
 .particle.g {
-	bottom: 289px;
-	left: 334px;
+	bottom: 201px;
+    right: 50px;
 }
 .delay.a {
 	animation-delay: 0.2s;

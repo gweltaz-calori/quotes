@@ -23,6 +23,6 @@ import GameButton from '../web/GameButton'
 }	
 #controller-picture {
 	margin-bottom: 18%;
-    width: 29%;
+    width: 141px;
 }
 </style>

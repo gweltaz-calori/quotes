@@ -1,13 +1,16 @@
 <template>
 	<div id="join-container">
-		<div v-if="!codeValidation" id="join-container-enter-code">
-			<span class="message" id="enter-code">Enter the code</span>
-			<div id="code">
-				<input :class="validatedClass(index)" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
+		<transition name="opacity">
+			<div v-if="!codeValidation && animations.visibleEnterCode" id="join-container-enter-code">	
+				<span v-show="animations.visibleEnterCode" class="message" id="enter-code">Enter the code</span>
+				<div id="code">
+					<input :key="index"  :class="validatedClass(index)" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
+				</div>
 			</div>
-		</div>
-		
-		<span v-if="codeValidation" class="message" id="waiting">Waiting for the host to start the game</span>
+		</transition> 
+		<transition name="validation-appear">
+			<span ref="validation" v-show="codeValidation" class="message waiting" >Waiting for the host to start the game</span>
+		</transition>
 	</div>
 </template>
 <script>
@@ -17,6 +20,11 @@
 			return {
 				userCode : [],
 				codeValidation:false,
+				animations : {
+					visibleEnterCode : false,
+					visibleInputs : false,
+				}
+
 			}
 		},
 		methods : {
@@ -48,6 +56,10 @@
 				//TODO Check that the code is right and then emit a socket
 			}
 		},
+		mounted() {
+			this.animations.visibleEnterCode = true;
+			this.animations.visibleInputs = true;
+		},
 		computed: {
 			
 		}
@@ -61,25 +73,34 @@
 	flex: 1;
 	height: 100%;
 }
-.message {
-	font-size: 25px;
-	color: white;
-	text-align: center;
-}
 #join-container-enter-code {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	height: calc(100% - 112px - 40px);
+	height: calc(100% - 115px - 40px);
+	transition: all 0.4s;
+	will-change:opacity;
 }
 #enter-code {
-	margin-top: 85px;
-	padding: 20px 0;
-}
-#waiting {
+	will-change:opacity;
+} 
+.waiting {
     padding: 37px;
 	margin: auto;
+	transition: all 0.9s ease;
+	transition-delay: 0.4s;
+	will-change:transform;
 }
+
+.validation-appear-enter {
+	opacity: 0;
+	transform: translateY(50px);
+}
+.validation-appear-enter-to {
+	opacity: 1;
+	transform: translateY(0px);
+}
+
 input {
 	border: 0;
     outline: 0;
@@ -92,6 +113,7 @@ input {
     font-size: 45px;
     padding: 10px 0;
     transition: all 0.2s;
+    font-family: "Roboto";
 }
 input.validated {
 	border-color: white;

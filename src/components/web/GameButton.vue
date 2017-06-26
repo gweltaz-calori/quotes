@@ -38,7 +38,7 @@
 	text-transform: uppercase;
 	border: solid rgba(255,255,255,0.15) 1px;
 	min-width: 250px;
-	padding: 18px 5px;
+	padding: 18px 28px;
 	font-size: 20px;
 	letter-spacing: 4px;
 	font-family: "Raleway";

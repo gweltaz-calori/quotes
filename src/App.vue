@@ -1,7 +1,9 @@
 <template>
     <div id="app" :style="bodyDimensions">
         <floating-particles></floating-particles>
-        <router-view></router-view>
+        <transition :duration="300" name="fade" mode="out-in">
+            <router-view></router-view>
+        </transition>
     </div>
 </template>
 
@@ -56,6 +58,7 @@ import './css/raleway.css'
     -webkit-tap-highlight-color: transparent;
     user-select:none;
     box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
 }
 span {
     font-family: "Raleway";
@@ -76,5 +79,29 @@ html,body {
     
     display: flex;
     background: linear-gradient(152.27deg, #787BE3 58.04%, #919EEA 97.28%);
+}
+
+.message {
+    font-size: 25px;
+    color: white;
+    text-align: center;
+    margin-top: 85px;
+    padding: 20px 66px;
+
+}
+.fade-enter-active, .fade-leave-active {
+  transition: opacity .3s
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0
+}
+.opacity-enter-active,.opacity-leave-active {
+    transition: all 1s;
+}
+.opacity-leave,.opacity-enter-to {
+    opacity: 1;
+}
+.opacity-leave-to,.opacity-enter {
+    opacity: 0;
 }
 </style>
