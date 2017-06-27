@@ -8,10 +8,9 @@
 </template>
 
 <script>
-import FloatingParticles from './components/web/FloatingParticles'
+
+import FloatingParticles from './components/common/FloatingParticles'
 import './css/raleway.css'
-/*import io from 'socket.io-client';
-const socket = io('http://192.168.1.100:8085');*/
 
     export default {
         name: 'app',

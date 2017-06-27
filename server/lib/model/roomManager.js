@@ -1,3 +1,4 @@
+import Player from './player'
 class RoomManager {
 
     constructor(rooms) {
@@ -13,7 +14,18 @@ class RoomManager {
 
 	addRoom(room) {
 		this.rooms.push(room)
+		console.log("----------------");
+		console.log("room added");
 		this.showRooms();
+		console.log("----------------");
+	}
+	
+	removeRoom(room) {
+		this.rooms.splice(this.rooms.indexOf(room),1);
+		console.log("----------------");
+		console.log("room removed");
+		this.showRooms();
+		console.log("----------------");
 	}
 
 	clearRooms() {
@@ -27,6 +39,12 @@ class RoomManager {
 	isCodeInRooms(code) {
 		return this.rooms.find(roomItem => roomItem.code == code) != undefined;
 	}
+
+	findRoom(code) {
+		return this.rooms.find(room => room.code == code);
+	}
+
+	
 }
 
 var instance = new RoomManager([]);

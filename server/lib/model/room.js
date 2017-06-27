@@ -8,6 +8,10 @@ export default class Room {
 
     addPlayer(player) {
     	this.players.push(player);
+    	console.log("----------------");
+		console.log("added player");
+		console.log(this);
+		console.log("----------------");
     }
 	
 	static generateCode() {

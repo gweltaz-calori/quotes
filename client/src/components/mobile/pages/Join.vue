@@ -4,22 +4,30 @@
 			<div v-if="!codeValidation && animations.visibleEnterCode" id="join-container-enter-code">	
 				<span v-show="animations.visibleEnterCode" class="message" id="enter-code">Enter the code</span>
 				<div id="code">
-					<input :key="index"  :class="validatedClass(index)" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
+					<input :key="index" :class="validatedClass(index)+' '+errorClass()" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
 				</div>
 			</div>
 		</transition> 
 		<transition name="validation-appear">
 			<span ref="validation" v-show="codeValidation" class="message waiting" >Waiting for the host to start the game</span>
 		</transition>
+		<game-menu type="menu"></game-menu>
 	</div>
 </template>
 <script>
-
+	import GameMenu from '../../common/GameMenu'
+	import io from 'socket.io-client';
+	import config from '../../../serverConfig'
+	const socket = io(config.socketURL);
 	export default {
+		components : {
+			GameMenu
+		},
 		data() {
 			return {
 				userCode : [],
 				codeValidation:false,
+				errors:false,
 				animations : {
 					visibleEnterCode : false,
 					visibleInputs : false,
@@ -38,7 +46,7 @@
 					if(this.isNext(nextInput)) 
 						nextInput[0].focus();
 					else {
-						this.checkCode();
+						this.joinRoom();
 					}
 				}		
 			},
@@ -51,14 +59,27 @@
 				let isLengthCorrect = this.userCode[index] != undefined && this.userCode[index].length == 1;
 				return isNumber && isLengthCorrect ? 'validated' : ''; 
 			},
-			checkCode() {
-				this.codeValidation = true;
-				//TODO Check that the code is right and then emit a socket
+			errorClass() {
+				return this.errors ? 'invalid' : '';
+			},
+			joinRoom() {
+				socket.emit('join-room',{code:this.userCode.join('')})
+				//this.codeValidation = true;
+				
+			},
+			onRoomJoined() {
+				socket.on('room-joined',(data) => {
+					if(data.success)
+						this.codeValidation = true;
+					else 
+						this.errors = true;
+				})
 			}
 		},
 		mounted() {
 			this.animations.visibleEnterCode = true;
 			this.animations.visibleInputs = true;
+			this.onRoomJoined();
 		},
 		computed: {
 			
@@ -117,6 +138,9 @@ input {
 }
 input.validated {
 	border-color: white;
+}
+input.invalid {
+	border-color: #FF4F56;
 }
 input:invalid {
 	border-color: #FF4F56;

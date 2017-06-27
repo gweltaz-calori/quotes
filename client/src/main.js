@@ -4,7 +4,13 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 
+import axios from 'axios'
+import serverConfig from './serverConfig'
+
 Vue.config.productionTip = false
+
+axios.defaults.baseURL = serverConfig.baseURL;
+
 
 /* eslint-disable no-new */
 new Vue({
