@@ -9,9 +9,9 @@
 
 <script>
 
-import FloatingParticles from './components/common/FloatingParticles'
-import './css/raleway.css'
-
+    import FloatingParticles from './components/common/FloatingParticles'
+    import './css/raleway.css'
+    import socket from './utils/socket'
     export default {
         name: 'app',
         components : {
@@ -40,12 +40,20 @@ import './css/raleway.css'
                 if(!doc.fullscreenElement && !doc.mozFullScreenElement && !doc.webkitFullscreenElement && !doc.msFullscreenElement) {
                     requestFullScreen.call(docEl);
                 }
+            },
+            onRoomDisconnected() {
+                socket.on('room-disconnected',(data) => {
+                    alert('Room has been disconnected');
+                    socket.emit('leave-room',{socketId:data.socketId});
+                    
+                })
             }
         },
         mounted: function () {
             window.addEventListener('resize', this.resizeBody)
             //window.addEventListener('click',this.toggleFullScreen)
             this.resizeBody();
+            this.onRoomDisconnected();
             
             
         },

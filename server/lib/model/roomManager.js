@@ -23,14 +23,16 @@ class RoomManager {
 		
 		let roomIndex = this.rooms.findIndex((room) => room.socketId == socketId);
 		if(roomIndex != -1 ) {
-			
+
 			this.rooms.splice(roomIndex,1);
 			console.log("----------------");
 			console.log("room removed");
 			this.showRooms();
 			console.log("----------------");
+			return true;
 		}
 		
+		return false;
 	}
 
 	clearRooms() {
@@ -48,6 +50,8 @@ class RoomManager {
 	findRoom(code) {
 		return this.rooms.find(room => room.code == code);
 	}
+
+
 
 	
 }

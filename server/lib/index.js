@@ -27,8 +27,6 @@ io.on('connection', socket => {
 		socket.emit('room-created',room)
 	})
 
-
-	
 	socket.on('check-code',(data) => {
 		let success = false;
 		if(managerInstance.isCodeInRooms(data.code))
@@ -38,17 +36,36 @@ io.on('connection', socket => {
 	
 	socket.on('join-room',(data) => {
 		let success = false;
+		let message = "";
+		let room = managerInstance.findRoom(data.code);
 		if(data.name.length > 0){
-			let room = managerInstance.findRoom(data.code);
-			room.addPlayer(new Player(data.name,0));
-			success = true;
+			
+			if(room != undefined) {
+				room.addPlayer(new Player(data.name,0));
+				success = true;
+				socket.join(room.socketId);
+			}
+			else { // Means room has been disconnect while user was adding his name
+				message = "This room has been disconnected. Go back to the";
+			} 
+			
 		}
-		socket.emit('room-joined',{success})
+		socket.emit('room-joined',{success,message})
 	})
 
+	socket.on('leave-room',(data) => {
+		console.log("----------")
+		console.log("leaving the room for the client",socket.id)
+		console.log("----------")
+		socket.leave(data.socketId);
+	})
 
 	socket.on('disconnect', () => {
-      	managerInstance.removeRoom(socket.id);
+      	let isRoomRemoved = managerInstance.removeRoom(socket.id);
+      	if(isRoomRemoved) // Means the person who leaves was a web client
+			socket.broadcast.to(socket.id).emit('room-disconnected',{socketId:socket.id});
+      	
+
    	});
 
 

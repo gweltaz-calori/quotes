@@ -10,6 +10,9 @@
 			<span ref="whoMessage" class="message" id="who-are-you">Who are you ?</span>
 			<input v-model="userName" maxlength="22" ref="whoInput" placeholder="Enter your name" type="text" id="userName">
 			<game-button @click.native="joinRoom()" ref="whoButton" type="button">JOIN</game-button>
+			<span class="error">{{roomErrorMessage}}
+				<a v-if="roomErrorMessage.length > 0" href="/join">menu</a>
+			</span>
 		</div>
 		<span ref="validation" class="message waiting" >Waiting for the host to start the game</span>
 	</div>
@@ -32,7 +35,7 @@
 					visibleInputs : false,
 				},
 				userName : "",
-
+				roomErrorMessage : "",
 			}
 		},
 		methods : {
@@ -81,8 +84,10 @@
 			},
 			onRoomJoined() {
 				socket.on('room-joined',(data) => {
-					if(data.success){
+					if(data.success) {
 						this.animateRoomJoined();
+					} else {
+						this.roomErrorMessage = data.message;
 					}
 				})
 			},
@@ -193,5 +198,14 @@
 }
 #userName:-moz-placeholder { /* Firefox 18- */
   	color: rgba(255,255,255,0.33);
+}
+.error 
+{
+	text-align: center;
+	padding: 20px;
+	color: #de3434;
+}
+.error a {
+	color: white;
 }
 </style>

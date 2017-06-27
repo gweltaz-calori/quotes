@@ -14,6 +14,8 @@ export default class Room {
 		console.log(this);
 		console.log("----------------");
     }
+
+    
 	
 	static generateCode() {
 		
