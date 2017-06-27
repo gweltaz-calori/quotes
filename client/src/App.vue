@@ -4,15 +4,14 @@
         <transition :duration="300" name="fade" mode="out-in">
             <router-view></router-view>
         </transition>
-        <button @click="emitSocket">socket</button>
     </div>
 </template>
 
 <script>
 import FloatingParticles from './components/web/FloatingParticles'
 import './css/raleway.css'
-import io from 'socket.io-client';
-const socket = io('http://localhost:8085');
+/*import io from 'socket.io-client';
+const socket = io('http://192.168.1.100:8085');*/
 
     export default {
         name: 'app',
@@ -28,9 +27,6 @@ const socket = io('http://localhost:8085');
             }
         },
         methods : {
-            emitSocket() {
-                socket.emit('hello', { message: 'ah' });
-            },
             resizeBody() {
                 this.bodyDimensions.width = (document.body.clientWidth || document.documentElement.offsetWidth || window.innerWidth)+'px';
                 this.bodyDimensions.height = (document.body.clientHeight || document.documentElement.offsetHeight || window.innerHeight)+'px';
