@@ -1,37 +1,37 @@
 <template>
 	<div id="join-container">
-		<transition name="opacity">
-			<div v-if="!codeValidation && animations.visibleEnterCode" id="join-container-enter-code">	
-				<span v-show="animations.visibleEnterCode" class="message" id="enter-code">Enter the code</span>
-				<div id="code">
-					<input :key="index" :class="validatedClass(index)+' '+errorClass()" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
-				</div>
+		<div ref="codeContainer" id="join-container-enter-code">	
+			<span class="message" id="enter-code">Enter the code</span>
+			<div id="code">
+				<input class="code-item" :key="index" :class="validatedClass(index)+' '+errorClass()" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
 			</div>
-		</transition> 
-		<transition name="validation-appear">
-			<span ref="validation" v-show="codeValidation" class="message waiting" >Waiting for the host to start the game</span>
-		</transition>
-		<game-menu type="menu"></game-menu>
+		</div>	
+		<div ref="whoContainer" id="who-container">
+			<span ref="whoMessage" class="message" id="who-are-you">Who are you ?</span>
+			<input v-model="userName" maxlength="22" ref="whoInput" placeholder="Enter your name" type="text" id="userName">
+			<game-button @click.native="joinRoom()" ref="whoButton" type="button">JOIN</game-button>
+		</div>
+		<span ref="validation" class="message waiting" >Waiting for the host to start the game</span>
 	</div>
 </template>
 <script>
-	import GameMenu from '../../common/GameMenu'
-	import io from 'socket.io-client';
-	import config from '../../../serverConfig'
-	const socket = io(config.socketURL);
+	import {TimelineMax} from 'gsap'
+	import GameButton from '../../common/GameButton'
+	import socket from '../../../utils/socket'
 	export default {
 		components : {
-			GameMenu
+			GameButton,
 		},
 		data() {
 			return {
 				userCode : [],
-				codeValidation:false,
+				nameValidation : false,
 				errors:false,
 				animations : {
 					visibleEnterCode : false,
 					visibleInputs : false,
-				}
+				},
+				userName : "",
 
 			}
 		},
@@ -46,7 +46,8 @@
 					if(this.isNext(nextInput)) 
 						nextInput[0].focus();
 					else {
-						this.joinRoom();
+
+						this.checkCode();
 					}
 				}		
 			},
@@ -62,24 +63,46 @@
 			errorClass() {
 				return this.errors ? 'invalid' : '';
 			},
-			joinRoom() {
-				socket.emit('join-room',{code:this.userCode.join('')})
-				//this.codeValidation = true;
-				
+			checkCode() {
+				socket.emit('check-code',{code:this.userCode.join('')})
+				this.onCodeChecked();
 			},
-			onRoomJoined() {
-				socket.on('room-joined',(data) => {
+			onCodeChecked() {
+				socket.on('code-checked',(data) => {
 					if(data.success)
-						this.codeValidation = true;
+						this.animateCodeValid();
 					else 
 						this.errors = true;
 				})
+			},
+			joinRoom() {
+				socket.emit('join-room',{code:this.userCode.join(''),name:this.userName})	
+				this.onRoomJoined();
+			},
+			onRoomJoined() {
+				socket.on('room-joined',(data) => {
+					if(data.success){
+						this.animateRoomJoined();
+					}
+				})
+			},
+			animateCodeValid() {
+				let tl = new TimelineMax({});
+				tl.to(this.$refs.codeContainer,0.5,{autoAlpha:0,display:'none'})
+					.set(this.$refs.whoContainer,{display:'flex'})
+					.to(this.$refs.whoMessage,0.5,{y:0,autoAlpha:1})
+					.to(this.$refs.whoInput,0.3,{autoAlpha:1})
+					.to(this.$refs.whoButton,2,{y:10,autoAlpha:1})
+			},
+			animateRoomJoined() {
+				let tl = new TimelineMax({});
+				tl.to(this.$refs.whoContainer,0.4,{autoAlpha:0,display:'none'})
+					.to(this.$refs.validation,0.4,{y:0,autoAlpha:1,display:'block'})
 			}
 		},
 		mounted() {
 			this.animations.visibleEnterCode = true;
 			this.animations.visibleInputs = true;
-			this.onRoomJoined();
 		},
 		computed: {
 			
@@ -99,8 +122,14 @@
 	flex-direction: column;
 	align-items: center;
 	height: calc(100% - 115px - 40px);
-	transition: all 0.4s;
-	will-change:opacity;
+}
+#who-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 100%;
+	padding: 85px 0;
+	display: none;
 }
 #enter-code {
 	will-change:opacity;
@@ -108,21 +137,13 @@
 .waiting {
     padding: 37px;
 	margin: auto;
-	transition: all 0.9s ease;
-	transition-delay: 0.4s;
 	will-change:transform;
-}
-
-.validation-appear-enter {
 	opacity: 0;
+	display: none;
 	transform: translateY(50px);
 }
-.validation-appear-enter-to {
-	opacity: 1;
-	transform: translateY(0px);
-}
 
-input {
+.code-item {
 	border: 0;
     outline: 0;
     background-color: transparent;
@@ -133,19 +154,44 @@ input {
     margin: 0 5px;
     font-size: 45px;
     padding: 10px 0;
-    transition: all 0.2s;
     font-family: "Roboto";
 }
-input.validated {
+.code-item.validated {
 	border-color: white;
 }
-input.invalid {
+.code-item.invalid {
 	border-color: #FF4F56;
 }
-input:invalid {
+.code-item:invalid {
 	border-color: #FF4F56;
+}
+#who-are-you {
+	transform: translateY(5px);
+    margin: 0;
 }
 #code {
     margin: auto;
+}
+#userName {
+	background-color: transparent;
+	border:0;
+	outline: 0;
+	text-align: center;
+	color: white;
+	font-size: 24px;
+	margin: auto;
+}
+
+#userName::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+  	color: rgba(255,255,255,0.33);
+}
+#userName::-moz-placeholder { /* Firefox 19+ */
+  	color: rgba(255,255,255,0.33);
+}
+#userName:-ms-input-placeholder { /* IE 10+ */
+  	color: rgba(255,255,255,0.33);
+}
+#userName:-moz-placeholder { /* Firefox 18- */
+  	color: rgba(255,255,255,0.33);
 }
 </style>

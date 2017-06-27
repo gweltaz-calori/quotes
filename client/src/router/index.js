@@ -4,7 +4,6 @@ import Home from '@/components/web/pages/Home'
 import Join from '@/components/mobile/pages/Join'
 import Create from '@/components/web/pages/Create'
 import Rules from '@/components/mobile/pages/Rules'
-import Me from '@/components/mobile/pages/Me'
 import Error404 from '@/components/common/pages/Error404'
 
 import {homeGuard,requiredWeb,requiredMobile} from '../utils/guards'
@@ -24,7 +23,8 @@ export default new Router({
     		path: '/join',
     		name: 'join',
     		component:Join,
-            beforeEnter: requiredMobile
+            beforeEnter: requiredMobile,
+            
     	},
     	{
     		path: '/create',

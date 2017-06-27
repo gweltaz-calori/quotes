@@ -19,41 +19,36 @@ server.listen(8085);
 
 io.on('connection', socket => {
     
-    // Page create
-	socket.on('create-room', () => {
-		console.log("create room")
-		let host = new Player("Jean",0,true);
+    
+	socket.on('create-room', () => {	
 		let code = Room.generateCode();
-		let room = new Room(code,[host]);
+		let room = new Room(socket.id,code,[]);
 		managerInstance.addRoom(room);
 		socket.emit('room-created',room)
 	})
 
-	socket.on('remove-room',(room) => {
-		managerInstance.removeRoom(room)
+
+	
+	socket.on('check-code',(data) => {
+		let success = false;
+		if(managerInstance.isCodeInRooms(data.code))
+			success = true;
+		socket.emit('code-checked',{success})
 	})
 	
-	// End Page create
-
-	
 	socket.on('join-room',(data) => {
-
 		let success = false;
-		if(managerInstance.isCodeInRooms(data.code)){
+		if(data.name.length > 0){
 			let room = managerInstance.findRoom(data.code);
-			room.addPlayer(new Player("denis",0,false));
+			room.addPlayer(new Player(data.name,0));
 			success = true;
 		}
 		socket.emit('room-joined',{success})
 	})
 
 
-
-
-
-
-	socket.on('disconnect', data => {
-      	console.log(socket+' Got disconnect');
+	socket.on('disconnect', () => {
+      	managerInstance.removeRoom(socket.id);
    	});
 
 

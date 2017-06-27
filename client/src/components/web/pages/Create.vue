@@ -8,10 +8,8 @@
 	</div>
 </template>
 <script>
-	import io from 'socket.io-client';
 	import GameButton from '../../common/GameButton'
-	import config from '../../../serverConfig'
-	const socket = io(config.socketURL);
+	import socket from '../../../utils/socket'
 
 	export default {
 		components : {
@@ -29,9 +27,6 @@
 			createRoom() {
 				socket.emit('create-room');
 			},
-			removeRoom() {
-				socket.emit('remove-room',this.room);
-			},
 			onRoomCreated() {
 				socket.on('room-created',data => {
 					this.room = data;
@@ -47,9 +42,6 @@
 			this.createRoom();
 			this.onRoomCreated();
 		},
-		beforeDestroy() {
-			this.removeRoom();		
-		}
 	}
 </script>
 <style scoped>

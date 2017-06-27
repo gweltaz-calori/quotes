@@ -1,4 +1,3 @@
-import Player from './player'
 class RoomManager {
 
     constructor(rooms) {
@@ -20,12 +19,18 @@ class RoomManager {
 		console.log("----------------");
 	}
 	
-	removeRoom(room) {
-		this.rooms.splice(this.rooms.indexOf(room),1);
-		console.log("----------------");
-		console.log("room removed");
-		this.showRooms();
-		console.log("----------------");
+	removeRoom(socketId) {
+		
+		let roomIndex = this.rooms.findIndex((room) => room.socketId == socketId);
+		if(roomIndex != -1 ) {
+			
+			this.rooms.splice(roomIndex,1);
+			console.log("----------------");
+			console.log("room removed");
+			this.showRooms();
+			console.log("----------------");
+		}
+		
 	}
 
 	clearRooms() {
