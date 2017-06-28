@@ -19,9 +19,9 @@ class RoomManager {
 		console.log("----------------");
 	}
 	
-	removeRoom(socketId) {
+	removeRoom(room) {
 		
-		let roomIndex = this.rooms.findIndex((room) => room.socketId == socketId);
+		let roomIndex = this.rooms.findIndex((listRoom) => room == listRoom);
 		if(roomIndex != -1 ) {
 
 			this.rooms.splice(roomIndex,1);
@@ -47,10 +47,18 @@ class RoomManager {
 		return this.rooms.find(roomItem => roomItem.code == code) != undefined;
 	}
 
-	findRoom(code) {
-		return this.rooms.find(room => room.code == code);
+	findRoom(filters) {
+		
+		return this.rooms
+			.find(room => room.code == filters.code 
+				|| room.socketId == filters.socketId);
 	}
 
+	isSocketARoom(socketId) {
+		return this.rooms.find(listRoom => listRoom.socketId == socketId) != undefined;
+	}
+
+	
 
 
 	

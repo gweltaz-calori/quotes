@@ -5,6 +5,7 @@
 			<div v-for="codeItem in formatedCode" class="code-item">{{codeItem}}</div>
 		</div>
 		<game-button type="button">Start</game-button>
+		{{room}}
 	</div>
 </template>
 <script>
@@ -19,7 +20,8 @@
 			return {
 				room : {
 					code : "",
-					players: []
+					players: [],
+					room : {}
 				}
 			}
 		},	
@@ -31,6 +33,11 @@
 				socket.on('room-created',data => {
 					this.room = data;
 				})
+			},
+			onInfosChanged() {
+				socket.on('infos-changed', room => {
+					this.room = room;
+				})
 			}
 		},
 		computed : {
@@ -41,6 +48,7 @@
 		mounted() {
 			this.createRoom();
 			this.onRoomCreated();
+			this.onInfosChanged();
 		},
 	}
 </script>

@@ -1,23 +1,26 @@
 <template>
 	<div id="join-container">
-		<div ref="codeContainer" id="join-container-enter-code">	
+		<div v-show="!reconnected" ref="codeContainer" id="join-container-enter-code">	
 			<span class="message" id="enter-code">Enter the code</span>
 			<div id="code">
 				<input class="code-item" :key="index" :class="validatedClass(index)+' '+errorClass()" :ref="'code'+index" v-model="userCode[index]" @input="formatCode(index)" v-for="(item,index) in [0,1,2,3]" type="number" pattern="\d*">
 			</div>
 		</div>	
-		<div ref="whoContainer" id="who-container">
+		<div v-show="!reconnected" ref="whoContainer" id="who-container">
 			<span ref="whoMessage" class="message" id="who-are-you">Who are you ?</span>
 			<input v-model="userName" maxlength="22" ref="whoInput" placeholder="Enter your name" type="text" id="userName">
 			<game-button @click.native="joinRoom()" ref="whoButton" type="button">JOIN</game-button>
+
 			<span class="error">{{roomErrorMessage}}
 				<a v-if="roomErrorMessage.length > 0" href="/join">menu</a>
 			</span>
 		</div>
-		<span ref="validation" class="message waiting" >Waiting for the host to start the game</span>
+		<span :class="reconnected ? 'wating-reconnected' :''" ref="validation" class="message waiting" >Waiting for the host to start the game</span>
 	</div>
 </template>
 <script>
+	import { mapActions,mapGetters } from 'vuex'
+	import Cookies from 'js-cookie'
 	import {TimelineMax} from 'gsap'
 	import GameButton from '../../common/GameButton'
 	import socket from '../../../utils/socket'
@@ -39,6 +42,9 @@
 			}
 		},
 		methods : {
+			...mapActions([
+                'setInfos',
+            ]),
 			formatCode(index) {
 				let currentNumber = this.userCode[index];
 				let nextInput = this.$refs['code'+(index+1)];
@@ -82,10 +88,16 @@
 				socket.emit('join-room',{code:this.userCode.join(''),name:this.userName})	
 				this.onRoomJoined();
 			},
+			setStateInfos() {
+				let code = this.userCode.join('');
+        		let infos = {code,name:this.userName};
+				this.setInfos(infos);
+			},
 			onRoomJoined() {
 				socket.on('room-joined',(data) => {
 					if(data.success) {
 						this.animateRoomJoined();
+						this.setStateInfos();
 					} else {
 						this.roomErrorMessage = data.message;
 					}
@@ -103,14 +115,17 @@
 				let tl = new TimelineMax({});
 				tl.to(this.$refs.whoContainer,0.4,{autoAlpha:0,display:'none'})
 					.to(this.$refs.validation,0.4,{y:0,autoAlpha:1,display:'block'})
-			}
+			},
 		},
 		mounted() {
 			this.animations.visibleEnterCode = true;
 			this.animations.visibleInputs = true;
+			
 		},
 		computed: {
-			
+			...mapGetters([
+				'reconnected'
+			]),
 		}
 	}
 </script>
@@ -147,7 +162,11 @@
 	display: none;
 	transform: translateY(50px);
 }
-
+.wating-reconnected {
+	opacity: 1;
+	display: block;
+	transform: translateY(0);
+}
 .code-item {
 	border: 0;
     outline: 0;
@@ -171,7 +190,7 @@
 	border-color: #FF4F56;
 }
 #who-are-you {
-	transform: translateY(5px);
+	
     margin: 0;
 }
 #code {

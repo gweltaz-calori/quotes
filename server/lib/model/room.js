@@ -4,19 +4,23 @@ export default class Room {
     constructor(socketId,code, players) {
     	this.socketId = socketId;
         this.code = code;
-        this.players = players;
+        this.players = [];
     }
 
     addPlayer(player) {
     	this.players.push(player);
-    	console.log("----------------");
-		console.log("added player");
-		console.log(this);
-		console.log("----------------");
+    }
+	
+	removePlayer(player) {
+		let playerIndex = this.players.findIndex(listPlayer => listPlayer == player);
+		if(playerIndex != -1)
+			this.players.splice(playerIndex,1);
+	}
+    
+    findPlayer(filters) {
+		return this.players.find(player => player.socketId == filters.socketId || player.name == filters.name);
     }
 
-    
-	
 	static generateCode() {
 		
 		let code = "";

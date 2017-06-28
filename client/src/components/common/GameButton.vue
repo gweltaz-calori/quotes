@@ -5,7 +5,7 @@
 				
 			</slot>
 		</router-link>
-		<button class="button" v-if="type == 'button'">
+		<button class="button" v-if="type == 'button'" :class="!minWidth ? 'width-auto' : '' ">
 			<slot></slot>
 		</button>
 	</div>
@@ -20,8 +20,12 @@
 		    },
 		    to : {
 				type:[String, Object],
+		    },
+		    minWidth : {
+		    	type : Boolean,
+		    	default:true
 		    }
-		}
+		},
 
 	}
 </script>
@@ -49,6 +53,12 @@
 	text-decoration: none;
 	transition: all 0.10s;
 }
+.width-auto {
+	min-width: auto;
+	width: 100%;
+	margin: 0 12px;
+}
+
 .button:hover {
 	color: #7174e2;
 	background-color: white;

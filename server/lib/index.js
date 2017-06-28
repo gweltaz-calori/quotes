@@ -19,7 +19,7 @@ server.listen(8085);
 
 io.on('connection', socket => {
     
-    
+
 	socket.on('create-room', () => {	
 		let code = Room.generateCode();
 		let room = new Room(socket.id,code,[]);
@@ -35,15 +35,17 @@ io.on('connection', socket => {
 	})
 	
 	socket.on('join-room',(data) => {
+		
 		let success = false;
 		let message = "";
-		let room = managerInstance.findRoom(data.code);
+		let room = managerInstance.findRoom({code:data.code,socketId:""});
 		if(data.name.length > 0){
 			
 			if(room != undefined) {
-				room.addPlayer(new Player(data.name,0));
+				room.addPlayer(new Player(socket.id,data.name,0));
 				success = true;
 				socket.join(room.socketId);
+				io.to(room.socketId).emit('infos-changed', room);
 			}
 			else { // Means room has been disconnect while user was adding his name
 				message = "This room has been disconnected. Go back to the";
@@ -53,20 +55,48 @@ io.on('connection', socket => {
 		socket.emit('room-joined',{success,message})
 	})
 
-	socket.on('leave-room',(data) => {
-		console.log("----------")
-		console.log("leaving the room for the client",socket.id)
-		console.log("----------")
-		socket.leave(data.socketId);
+	socket.on('leave-room',(infos) => {
+
+		let room = managerInstance.findRoom({code:infos.code,socketId:''});
+		let player = room.findPlayer({socketId:'',name:infos.name});
+		room.removePlayer(player);
+		socket.leave(room.socketId);
+		io.to(room.socketId).emit('infos-changed', room);
 	})
 
-	socket.on('disconnect', () => {
-      	let isRoomRemoved = managerInstance.removeRoom(socket.id);
-      	if(isRoomRemoved) // Means the person who leaves was a web client
-			socket.broadcast.to(socket.id).emit('room-disconnected',{socketId:socket.id});
-      	
+	socket.on('player-reconnect',(infos) => {
+		let room = managerInstance.findRoom({code:infos.code,socketId:''});
+		let disconnectedPlayer = room.findPlayer({socketId:'',name:infos.name});
+		socket.join(room.socketId);
+		disconnectedPlayer.setConnectedStatus(true);
+		disconnectedPlayer.setSocketId(socket.id);
+		io.to(room.socketId).emit('infos-changed', room);
+		
+	})
 
-   	});
+   	socket.on('disconnecting',() => {
+   		
+		if(managerInstance.isSocketARoom(socket.id)) { // If the socket who left is a room
+			let room = managerInstance.findRoom({code:'',socketId:socket.id});
+   			managerInstance.removeRoom(room);
+   			socket.broadcast.to(socket.id).emit('room-disconnected',{socketId:socket.id});
+   			for(let player of room.players) {
+   				let socket = io.sockets.connected[player.socketId];
+   				socket.leave(room.socketId);
+   			}
+		} 
+		else if(Player.hasRooms(socket.rooms,socket.id)){ // It's a player
+			let idRoom = Object.keys(socket.rooms).find(key => key != socket.id); // Socket.io consider that the client is also a room
+      		let room = managerInstance.findRoom({code:"",socketId:idRoom});
+      		let player = room.findPlayer({socketId:socket.id,name:''});
+      		player.setConnectedStatus(false);
+      		io.to(room.socketId).emit('infos-changed', room);
+		}  
+
+   		
+   	})
+
+   	
 
 
 });

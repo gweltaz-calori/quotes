@@ -8,7 +8,9 @@
 </template>
 
 <script>
-
+    import {isMobile} from './utils/platform'
+    import { mapGetters,mapActions } from 'vuex'
+    import Cookies from 'js-cookie'
     import FloatingParticles from './components/common/FloatingParticles'
     import './css/raleway.css'
     import socket from './utils/socket'
@@ -26,6 +28,9 @@
             }
         },
         methods : {
+            ...mapActions([
+                'setInfos'
+            ]),
             resizeBody() {
                 this.bodyDimensions.width = (document.body.clientWidth || document.documentElement.offsetWidth || window.innerWidth)+'px';
                 this.bodyDimensions.height = (document.body.clientHeight || document.documentElement.offsetHeight || window.innerHeight)+'px';
@@ -44,13 +49,26 @@
             onRoomDisconnected() {
                 socket.on('room-disconnected',(data) => {
                     alert('Room has been disconnected');
-                    socket.emit('leave-room',{socketId:data.socketId});
-                    
+                    this.setInfos({});
+                    window.location.replace('/');
+
                 })
-            }
+            },
+            setCookieInfos() {
+                
+                if(isMobile() && Object.keys(this.infos).length > 0)
+                    Cookies.set('userinfos', this.infos);
+                
+            },
+        },
+        computed : {
+            ...mapGetters([
+                'infos',
+            ])
         },
         mounted: function () {
             window.addEventListener('resize', this.resizeBody)
+            window.addEventListener('beforeunload',this.setCookieInfos);
             //window.addEventListener('click',this.toggleFullScreen)
             this.resizeBody();
             this.onRoomDisconnected();
@@ -59,8 +77,10 @@
         },
         beforeDestroy: function () {
             window.removeEventListener('resize', this.resizeBody)
+            window.removeEventListener('beforeunload',this.setCookieInfos);
             //window.removeEventListener('click',this.toggleFullScreen)
-        }
+            
+        },
     }
 </script>
 

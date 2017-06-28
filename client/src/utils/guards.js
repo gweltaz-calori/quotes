@@ -1,8 +1,17 @@
 import {isMobile} from './platform'
+import {hasCookie} from './cookies'
+
+
 
 export function homeGuard(to, from, next) {
-	if(isMobile())
-        next('join');
+	if(isMobile()){
+		if(hasCookie()) {
+			next('reconnection')
+		}
+		else {
+			next('join');
+		}  
+	}
     else 
         next('create')
 }
@@ -11,10 +20,24 @@ export function requiredMobile(to,from,next) {
 	
 	if(!isMobile())
 		next(from.path)
-	else
-		next();
+	else {
+		if(hasCookie())
+			next('reconnection')
+		else
+			next();
+	}
 	
 } 
+
+export function requireReconnection(to,from,next) {
+	
+	if(!isMobile() || !hasCookie()){
+		
+		next(from.path)
+	}
+	else 
+		next();
+}
 
 export function requiredWeb(to,from,next) {
 	
