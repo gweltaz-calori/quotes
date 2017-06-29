@@ -47,7 +47,7 @@
                 }
             },
             onRoomDisconnected() {
-                socket.on('room-disconnected',(data) => {
+                socket.on('room-disconnected',() => {
                     alert('Room has been disconnected');
                     this.setInfos({});
                     window.location.replace('/');

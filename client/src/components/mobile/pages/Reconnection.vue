@@ -42,9 +42,8 @@
 				socket.emit('player-reconnect',this.infos);
 				this.setInfos(this.infos);
 				this.setReconnected(true);
-				this.$router.push({ name: 'home' })
-				
-			}
+				this.$router.push({ name: 'home' })	
+			},
 		},
 		mounted() {
 			this.infos = JSON.parse(Cookies.get('userinfos'));

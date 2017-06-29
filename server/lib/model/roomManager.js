@@ -1,3 +1,5 @@
+// Dealing with all the global actions for the rooms
+
 class RoomManager {
 
     constructor(rooms) {
@@ -52,6 +54,10 @@ class RoomManager {
 		return this.rooms
 			.find(room => room.code == filters.code 
 				|| room.socketId == filters.socketId);
+	}
+
+	roomExists(filters) {
+		return this.findRoom(filters) != undefined;
 	}
 
 	isSocketARoom(socketId) {

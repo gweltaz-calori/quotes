@@ -15,11 +15,14 @@ app.use(cors());
 
 app.use('/api/', router);
 
+
+
+
 server.listen(8085);
 
 io.on('connection', socket => {
     
-
+	
 	socket.on('create-room', () => {	
 		let code = Room.generateCode();
 		let room = new Room(socket.id,code,[]);
@@ -37,40 +40,55 @@ io.on('connection', socket => {
 	socket.on('join-room',(data) => {
 		
 		let success = false;
-		let message = "";
-		let room = managerInstance.findRoom({code:data.code,socketId:""});
-		if(data.name.length > 0){
-			
-			if(room != undefined) {
+		if(data.name.length > 0) {
+			 
+			if(managerInstance.roomExists({code:data.code,socketId:""})) {
+				let room = managerInstance.findRoom({code:data.code,socketId:""});
 				room.addPlayer(new Player(socket.id,data.name,0));
 				success = true;
 				socket.join(room.socketId);
 				io.to(room.socketId).emit('infos-changed', room);
 			}
 			else { // Means room has been disconnect while user was adding his name
-				message = "This room has been disconnected. Go back to the";
+				socket.emit('room-disconnected');
 			} 
 			
 		}
-		socket.emit('room-joined',{success,message})
+		socket.emit('room-joined',{success})
 	})
 
 	socket.on('leave-room',(infos) => {
 
-		let room = managerInstance.findRoom({code:infos.code,socketId:''});
-		let player = room.findPlayer({socketId:'',name:infos.name});
-		room.removePlayer(player);
-		socket.leave(room.socketId);
-		io.to(room.socketId).emit('infos-changed', room);
+		if(managerInstance.roomExists({code:infos.code,socketId:''})) { // Means the room has been deleted during that time
+			let room = managerInstance.findRoom({code:infos.code,socketId:''});
+			let player = room.findPlayer({socketId:'',name:infos.name});
+
+			room.removePlayer(player);
+			socket.leave(room.socketId);
+
+			io.to(room.socketId).emit('infos-changed', room);
+		}	
 	})
 
 	socket.on('player-reconnect',(infos) => {
-		let room = managerInstance.findRoom({code:infos.code,socketId:''});
-		let disconnectedPlayer = room.findPlayer({socketId:'',name:infos.name});
-		socket.join(room.socketId);
-		disconnectedPlayer.setConnectedStatus(true);
-		disconnectedPlayer.setSocketId(socket.id);
-		io.to(room.socketId).emit('infos-changed', room);
+		
+		
+		if(managerInstance.roomExists({code:infos.code,socketId:''})) {
+
+			let room = managerInstance.findRoom({code:infos.code,socketId:''});
+			let disconnectedPlayer = room.findPlayer({socketId:'',name:infos.name});
+
+			socket.join(room.socketId);
+
+			disconnectedPlayer.setConnectedStatus(true);
+			disconnectedPlayer.setSocketId(socket.id);
+
+			io.to(room.socketId).emit('infos-changed', room);
+		}
+		else { //Room has been deleted during 
+			socket.emit('room-disconnected');
+		}
+		
 		
 	})
 
@@ -79,17 +97,21 @@ io.on('connection', socket => {
 		if(managerInstance.isSocketARoom(socket.id)) { // If the socket who left is a room
 			let room = managerInstance.findRoom({code:'',socketId:socket.id});
    			managerInstance.removeRoom(room);
-   			socket.broadcast.to(socket.id).emit('room-disconnected',{socketId:socket.id});
+   			socket.broadcast.to(socket.id).emit('room-disconnected');
    			for(let player of room.players) {
    				let socket = io.sockets.connected[player.socketId];
-   				socket.leave(room.socketId);
+   				if(socket != undefined) // means player didnt reconnect yet
+   					socket.leave(room.socketId);
    			}
 		} 
-		else if(Player.hasRooms(socket.rooms,socket.id)){ // It's a player
+		else if(Player.hasRooms(socket.rooms,socket.id)){ // It's a player an he has rooms
+
 			let idRoom = Object.keys(socket.rooms).find(key => key != socket.id); // Socket.io consider that the client is also a room
       		let room = managerInstance.findRoom({code:"",socketId:idRoom});
       		let player = room.findPlayer({socketId:socket.id,name:''});
+
       		player.setConnectedStatus(false);
+      		
       		io.to(room.socketId).emit('infos-changed', room);
 		}  
 

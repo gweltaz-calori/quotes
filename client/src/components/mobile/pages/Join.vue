@@ -10,10 +10,6 @@
 			<span ref="whoMessage" class="message" id="who-are-you">Who are you ?</span>
 			<input v-model="userName" maxlength="22" ref="whoInput" placeholder="Enter your name" type="text" id="userName">
 			<game-button @click.native="joinRoom()" ref="whoButton" type="button">JOIN</game-button>
-
-			<span class="error">{{roomErrorMessage}}
-				<a v-if="roomErrorMessage.length > 0" href="/join">menu</a>
-			</span>
 		</div>
 		<span :class="reconnected ? 'wating-reconnected' :''" ref="validation" class="message waiting" >Waiting for the host to start the game</span>
 	</div>
@@ -38,7 +34,6 @@
 					visibleInputs : false,
 				},
 				userName : "",
-				roomErrorMessage : "",
 			}
 		},
 		methods : {
@@ -98,8 +93,6 @@
 					if(data.success) {
 						this.animateRoomJoined();
 						this.setStateInfos();
-					} else {
-						this.roomErrorMessage = data.message;
 					}
 				})
 			},
