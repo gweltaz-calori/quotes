@@ -1,0 +1,16 @@
+<svg width="36" height="25" viewBox="0 0 36 25" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<title>Union</title>
+<desc>Created using Figma</desc>
+<g id="Canvas" transform="translate(-5722 944)">
+<g id="Union">
+<use xlink:href="#path0_fill" transform="translate(5722.7 -943.478)" fill="url(#paint0_linear)"/>
+</g>
+</g>
+<defs>
+<linearGradient id="paint0_linear" x1="0" y1="0" x2="1" y2="0" gradientUnits="userSpaceOnUse" gradientTransform="matrix(42.2722 29.1417 -45.2684 8.62077 17.8979 -10.2812)">
+<stop offset="0.596685" stop-color="#787BE3"/>
+<stop offset="1" stop-color="#919EEA"/>
+</linearGradient>
+<path id="path0_fill" fill-rule="evenodd" d="M 11.6416 22.1194L 0 10.4775L 1.41406 9.06335L 13.0562 20.7051L 33.7612 0L 35.1753 1.41418L 13.0562 23.5336L 11.6416 22.1194Z"/>
+</defs>
+</svg>

@@ -1,20 +1,26 @@
 <template>
 	<div id="create-container">
-		<span class="message" id="share-code">Share this code with your friends</span>
-		<div id="code">
-			<div v-for="codeItem in formatedCode" class="code-item">{{codeItem}}</div>
-		</div>
-		<game-button type="button">Start</game-button>
-		{{room}}
+		<game-menu :room-code="room.code"></game-menu>
+		
+		<setup :code="room.code" :players="room.players"></setup>
+		
 	</div>
 </template>
 <script>
+	
+	import Setup from '../Setup'
+	import Leaderboard from '../Leaderboard'
+
+	import GameMenu from '../../common/GameMenu'
 	import GameButton from '../../common/GameButton'
 	import socket from '../../../utils/socket'
 
 	export default {
 		components : {
-			GameButton
+			GameButton,
+			GameMenu,
+			Leaderboard,
+			Setup
 		},
 		data() {
 			return {
@@ -58,13 +64,8 @@
 	flex-direction: column;
 	align-items: center;
 	flex: 1;
-	padding: 85px 0;
-}
-#code {
-	margin: auto;
-	display: flex;
-	align-items: center;
-	justify-content: center;
+    z-index: 1;
+	padding: 40px;
 }
 .code-item {
 	font-size: 45px;
@@ -72,8 +73,5 @@
 	font-family: "Roboto";
 	text-align: center;
     margin: 0 10px;
-}	
-#share-code {
-	margin: 0;
 }
 </style>

@@ -21,6 +21,12 @@ export default class Room {
 		return this.players.find(player => player.socketId == filters.socketId || player.name == filters.name);
     }
 
+    isPlayerNameUnique(name) {
+		
+		return this.players.find(player => player.name == name) === undefined;
+
+    }
+
 	static generateCode() {
 		
 		let code = "";

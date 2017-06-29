@@ -120,6 +120,12 @@ html,body {
     padding: 20px 66px;
 
 }
+
+.block {
+    margin: 0 80px;
+}
+
+
 .fade-enter-active, .fade-leave-active {
   transition: opacity .3s
 }
@@ -134,5 +140,12 @@ html,body {
 }
 .opacity-leave-to,.opacity-enter {
     opacity: 0;
+}
+
+
+@media (max-device-width: 1217px), (max-width: 1217px) {
+    .block { 
+        margin: 0;
+    }
 }
 </style>

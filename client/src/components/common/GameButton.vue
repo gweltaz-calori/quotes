@@ -1,11 +1,11 @@
 <template>
-	<div class="button-container">
+	<div class="button-container" :class="square ? 'square' : '' ">
 		<router-link :to="to" class="button" v-if="type == 'link'">
 			<slot>
 				
 			</slot>
 		</router-link>
-		<button class="button" v-if="type == 'button'" :class="!minWidth ? 'width-auto' : '' ">
+		<button class="button" v-if="type == 'button'" :class="[!minWidth ? 'width-auto' : '',rounded ? 'rounded' : '']">
 			<slot></slot>
 		</button>
 	</div>
@@ -24,6 +24,12 @@
 		    minWidth : {
 		    	type : Boolean,
 		    	default:true
+		    },
+		    square : {
+		    	type : Boolean
+		    },
+		    rounded : {
+		    	type : Boolean
 		    }
 		},
 
@@ -49,7 +55,6 @@
 	position: relative;
 	overflow: hidden;
 	z-index: 1;
-	margin: 10px 0;
 	text-decoration: none;
 	transition: all 0.10s;
 }
@@ -58,7 +63,20 @@
 	width: 100%;
 	margin: 0 12px;
 }
+.button-container.square {
+	display: inline-flex;
+}
+.button-container.square .button {
+	border-radius: 10px;
+	display: flex;
+	padding: 18px;
+	margin: 0;
+	min-width: auto;
 
+}
+.rounded {
+	border-radius: 50px;
+}
 .button:hover {
 	color: #7174e2;
 	background-color: white;

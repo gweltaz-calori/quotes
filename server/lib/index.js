@@ -40,21 +40,31 @@ io.on('connection', socket => {
 	socket.on('join-room',(data) => {
 		
 		let success = false;
+		let message = "";
 		if(data.name.length > 0) {
 			 
 			if(managerInstance.roomExists({code:data.code,socketId:""})) {
+
 				let room = managerInstance.findRoom({code:data.code,socketId:""});
-				room.addPlayer(new Player(socket.id,data.name,0));
-				success = true;
-				socket.join(room.socketId);
-				io.to(room.socketId).emit('infos-changed', room);
+				if(room.isPlayerNameUnique(data.name)) {
+
+					room.addPlayer(new Player(socket.id,data.name,0));
+					success = true;
+					socket.join(room.socketId);
+					io.to(room.socketId).emit('infos-changed', room);
+				} 
+				else 
+				{
+					message = "Names must be unique";
+				}
+				
 			}
 			else { // Means room has been disconnect while user was adding his name
 				socket.emit('room-disconnected');
 			} 
 			
 		}
-		socket.emit('room-joined',{success})
+		socket.emit('room-joined',{success,message})
 	})
 
 	socket.on('leave-room',(infos) => {
@@ -111,7 +121,7 @@ io.on('connection', socket => {
       		let player = room.findPlayer({socketId:socket.id,name:''});
 
       		player.setConnectedStatus(false);
-      		
+
       		io.to(room.socketId).emit('infos-changed', room);
 		}  
 
