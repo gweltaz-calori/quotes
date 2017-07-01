@@ -1,34 +1,44 @@
 <template>
-	<div id="setup-container">
+	<div id="create-container">
 		<div class="messages">
 			<span class="message" id="share-code">Join on your phone</span>
 			<span id="url">quotes.com</span>
 		</div>
 		<leaderboard :players="players"></leaderboard>
-		<game-button rounded id="start-button" type="button" @click.native="test()">Start</game-button>
+		<game-button rounded id="start-button" type="button" @click.native="startGame()">Start</game-button>
 	</div>
 </template>
 <script>
-	import GameBadge from '../common/GameBadge'
-	import GameButton from '../common/GameButton'
-	import Leaderboard from './Leaderboard'
+	
+	import socket from '../../../../utils/socket'
+	import GameButton from '../../../common/GameButton'
+	import Leaderboard from '../../Leaderboard'
+
 	export default {
 		props : ['code','players'],
 		components : {
 			Leaderboard,
-			GameBadge,
 			GameButton
 		},
 		methods : {
-			test() {
-				
-				this.players[0].connected = false;
+			startGame() {
+				socket.emit('start-game');
+
+			},
+			onGameStarted() {
+				socket.on('game-started',(question) => {
+					this.$router.replace({name:'game'})
+				})
 			}
+		},
+		mounted() {
+			this.onGameStarted();
 		}
+	
 	}
 </script>
 <style scoped>
-#setup-container {
+#create-container {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -63,4 +73,9 @@
 .messages {
     margin-top: 126px;
 }
+.game-invalid {
+	cursor: not-allowed;
+	pointer-events: none;
+}
+
 </style>

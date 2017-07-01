@@ -1,10 +1,12 @@
 import managerInstance from './roomManager'
+import Game from './game'
 export default class Room {
 
     constructor(socketId,code, players) {
     	this.socketId = socketId;
         this.code = code;
         this.players = [];
+        this.game = new Game();
     }
 
     addPlayer(player) {

@@ -31,15 +31,14 @@
 	margin-left: auto;
 }
 .leaderboard-card {
-	display: flex;
-	align-items: center;
+	transition: all 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);
 	margin: 18px 0;
 }
 .leaderboard-status {
 	margin-right: 20px;
 	height: 50px;
 	width: 50px;
-	display: flex;
+	display: inline-flex;
 	justify-content: center;
 	align-items: center;
 	background-color: white;
@@ -51,7 +50,7 @@
     width: 15px;
 }
 .leaderboard-infos {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	padding: 26px;
 	width: 282px;

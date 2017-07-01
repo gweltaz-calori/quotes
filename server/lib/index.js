@@ -8,6 +8,7 @@ const router = express.Router();
 //Model
 import Player from './model/player'
 import Room from './model/room'
+import Game from './model/game'
 import managerInstance from './model/roomManager'
 
 
@@ -24,17 +25,21 @@ io.on('connection', socket => {
     
 	
 	socket.on('create-room', () => {	
+
 		let code = Room.generateCode();
 		let room = new Room(socket.id,code,[]);
 		managerInstance.addRoom(room);
 		socket.emit('room-created',room)
+
 	})
 
 	socket.on('check-code',(data) => {
+
 		let success = false;
 		if(managerInstance.isCodeInRooms(data.code))
 			success = true;
 		socket.emit('code-checked',{success})
+
 	})
 	
 	socket.on('join-room',(data) => {
@@ -47,11 +52,11 @@ io.on('connection', socket => {
 
 				let room = managerInstance.findRoom({code:data.code,socketId:""});
 				if(room.isPlayerNameUnique(data.name)) {
-
-					room.addPlayer(new Player(socket.id,data.name,0));
+					let player = new Player(socket.id,data.name,0);
+					room.addPlayer(player);
 					success = true;
 					socket.join(room.socketId);
-					io.to(room.socketId).emit('infos-changed', room);
+					io.to(room.socketId).emit('infos-changed', {type:'player-joined',player});
 				} 
 				else 
 				{
@@ -65,6 +70,7 @@ io.on('connection', socket => {
 			
 		}
 		socket.emit('room-joined',{success,message})
+
 	})
 
 	socket.on('leave-room',(infos) => {
@@ -76,13 +82,13 @@ io.on('connection', socket => {
 			room.removePlayer(player);
 			socket.leave(room.socketId);
 
-			io.to(room.socketId).emit('infos-changed', room);
-		}	
+			io.to(room.socketId).emit('infos-changed', {type:'player-left',player});
+		}
+
 	})
 
 	socket.on('player-reconnect',(infos) => {
-		
-		
+			
 		if(managerInstance.roomExists({code:infos.code,socketId:''})) {
 
 			let room = managerInstance.findRoom({code:infos.code,socketId:''});
@@ -93,13 +99,12 @@ io.on('connection', socket => {
 			disconnectedPlayer.setConnectedStatus(true);
 			disconnectedPlayer.setSocketId(socket.id);
 
-			io.to(room.socketId).emit('infos-changed', room);
+			io.to(room.socketId).emit('infos-changed', {type:'player-reconnected',player:disconnectedPlayer});
 		}
 		else { //Room has been deleted during 
 			socket.emit('room-disconnected');
 		}
-		
-		
+				
 	})
 
    	socket.on('disconnecting',() => {
@@ -119,16 +124,23 @@ io.on('connection', socket => {
 			let idRoom = Object.keys(socket.rooms).find(key => key != socket.id); // Socket.io consider that the client is also a room
       		let room = managerInstance.findRoom({code:"",socketId:idRoom});
       		let player = room.findPlayer({socketId:socket.id,name:''});
+			if(player != undefined) {
+				player.setConnectedStatus(false);
 
-      		player.setConnectedStatus(false);
-
-      		io.to(room.socketId).emit('infos-changed', room);
+      			io.to(room.socketId).emit('infos-changed', {type:'player-disconnected',player});
+			}
+      		
 		}  
 
-   		
    	})
 
-   	
+   	socket.on('start-game',() => {
+		let room = managerInstance.findRoom({code:'',socketId:socket.id});
+		room.game.started = true;
+		let currentQuestion = room.game.questions[room.game.currentQuestion];
+   		io.sockets.in(socket.id).emit('game-started',currentQuestion);
+
+   	})
 
 
 });

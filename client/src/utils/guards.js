@@ -13,7 +13,7 @@ export function homeGuard(to, from, next) {
 		}  
 	}
     else 
-        next('create')
+        next('game/create')
 }
 
 export function requiredMobile(to,from,next) {

@@ -96,6 +96,7 @@
 					if(data.success) {
 						this.animateRoomJoined();
 						this.setStateInfos();
+						this.onGameStarted();
 					} else {
 						this.roomErrorMessage = data.message;
 					}
@@ -114,6 +115,11 @@
 				tl.to(this.$refs.whoContainer,0.4,{autoAlpha:0,display:'none'})
 					.to(this.$refs.validation,0.4,{y:0,autoAlpha:1,display:'block'})
 			},
+			onGameStarted() {
+				socket.on('game-started',() => {
+					console.log("game started")
+				})
+			}
 		},
 		mounted() {
 			this.animations.visibleEnterCode = true;
